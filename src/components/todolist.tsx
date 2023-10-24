@@ -2,30 +2,7 @@ import React,{ useState, useEffect } from "react";
 import TodoItem from "./todoItem";
 import TodoInput from './todoInput';
 import styled from 'styled-components';
-
-const Wrapper = styled.div`
-    /* background-color: #ffd400; */
-    background-color: #fcdd76;
-    /* background: repeating-linear-gradient(#a07526, #a07526 2px, #fcdd76 0, #fcdd76 40px); */
-    width: 25%;
-    /* height: 75%; */
-    margin-top: 60px;
-    margin-bottom: 60px;
-    padding: 15px 10px 15px 10px;
-    /* border-radius: 10px; */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* justify-content: space-between; */
-`;
-
-// const Footer = styled.div`
-//     width:100%; 
-//     height: 40px;
-//     background-color: #9EB384;
-//     align-items: flex-end;
-// `;
-
+import { Container } from '../styles/todolist.styled'
 const TodoList = () => {
 
     interface Item { 
@@ -37,15 +14,7 @@ const TodoList = () => {
 
     const [todoInput, setTodoInput] = useState<string>('');
 
-    // localStorage 활용
-    // useEffect(()=>{
-    //     const firstSetting  = JSON.parse(localStorage.getItem('item')||"[]");
-    //     setTodoItem(firstSetting);
-    // },[]);
-
     const addItem = () => {
-        // setCount(count+1);
-        console.log(todoItem);
         if(todoItem.length===0) {
             setTodoItem([{id:0, text:todoInput}]);
             localStorage.setItem('item',JSON.stringify([{id:0, text:todoInput}]));
@@ -59,21 +28,17 @@ const TodoList = () => {
     }
 
     return(
-        <Wrapper>
+        <Container>
             <div 
                 style={{paddingTop:"20px", fontSize:"25px"}}
             >To-Do List</div>
-                {/* <div style={{height:"380px"}}> */}
-                    <TodoInput 
-                        todoInput={todoInput}
-                        setTodoInput={setTodoInput}
-                        addItem={addItem}
-                        />
-                    <TodoItem todoItem={todoItem}
+                <TodoInput 
+                    todoInput={todoInput}
+                    setTodoInput={setTodoInput}
+                    addItem={addItem}
                     />
-                {/* </div> */}
-            {/* <Footer/> */}
-            </Wrapper>
+                <TodoItem todoItem={todoItem} />
+        </Container>
     )
 }
 
