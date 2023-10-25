@@ -1,128 +1,90 @@
-import React,{ useState, Dispatch,SetStateAction } from "react";
+import React,{ useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-
-interface Props {
-    todoItem: {id: number, text: string}[],
-    // setTodoItem: React.Dispatch<React.SetStateAction<object[]>>;
-
-}
-
-const Button = styled.button`
-    margin-left: 5px;
-    border:none;
-    background-color: transparent;
-    z-index: 100;
-    cursor: pointer;
-`;
-
-const Wrapper = styled.div`
-    position:relative;
-    width:300px;
-    height: 380px;
-    font-size: 17px;
-    /* text-justify: center; */
-`;
-
-const BackGroundPattern = styled.div`
-    /* padding: 5px; */
-    position:absolute;
-    /* left:1px; */
-    top: 27px;
-    width:300px;
-    height: 380px;
-    background: repeating-linear-gradient(#a07526, #a07526 2px, transparent 0, transparent 40px);
-`;
-
-const CustomCheckboxWrapper = styled.div`
-    position:relative;
-    padding-right:12px;
-`;
-
-const StyledCheckbox = styled.input`
-    visibility: hidden;
-`;
-
-const StyledLabel = styled.label<{isChecked:boolean}>`
-    background-color: transparent;
-    border: 1px solid #a07526;
-    cursor: pointer;
-    width: 15px;
-    height: 15px;
-    position: absolute;
-    top:6px;
-    left: 10px;
-    ${({ isChecked }) => {
-        return isChecked
-            ? `
-                // background-color: #66bb6a;
-                // border-color: #66bb6a;
-                &:after {
-                    border: 2px solid #a07526;
-                    border-top: none;
-                    border-right: none;
-                    content: "";
-                    width: 14px;
-                    height: 8px;
-                    position: absolute;
-                    transform: rotate(-45deg);
-                }
-            `
-            : `
-                background-color: transparent !important;
-                &:after {
-                    opacity: 1;
-                }
-            `}}
-`;
+import { DeleteButton, 
+    ItemContainer, 
+    BackGroundPattern, 
+    CustomCheckboxWrapper, 
+    StyledCheckbox,
+    StyledLabel } from '../styles/todolist.styled';
+    interface Item { 
+        id: number,
+        text: string,
+        done: boolean
+    } 
+    interface Props {
+        todoItem: {id: number, text: string, done:boolean}[],
+        setTodoItem: React.Dispatch<React.SetStateAction<Item[]>>;
+        // isChecked: boolean[],
+        // setIsChecked: React.Dispatch<React.SetStateAction<boolean[]>>;
+    }
 
 const TodoItem = (props:Props) => {
 
-    interface todolistType {
-        id: number,
-        text: string
-    }
-
-    const [item,setItem] = useState<string>('');
     const onClickDelete = (e:React.MouseEvent<HTMLButtonElement, MouseEvent>) =>  {
         const name = +e.currentTarget.dataset.name;
-        const list:todolistType[] = JSON.parse(localStorage.getItem('item'));
-        
-        console.log(list.filter((val)=>val.id !== name));
-
+        const list:Item[] = JSON.parse(localStorage.getItem('item'));
+        const updatedList = list.filter((val)=>val.id !== name);
+        localStorage.setItem('item',JSON.stringify(updatedList));
+        props.setTodoItem([...updatedList]);
     }
 
-    const [isChecked,setIsChecked] = useState<boolean>(false);
+    // const [isChecked,setIsChecked] = useState<boolean>(false);
     const onClickCheckbox = (e:React.MouseEvent<HTMLElement,MouseEvent>) => {
-        console.log(e.currentTarget.dataset.name);
-        setIsChecked(!isChecked);
+        const name = +e.currentTarget.dataset.name;
+        const list:Item[] = JSON.parse(localStorage.getItem('item'));
+        
+        const updatedList = list.map(item => {
+            if (item.id === name) {
+                const newValue = !item.done;
+                // Create a new object with the updated 'done' property
+                return { ...item, done: newValue };
+            }
+            return item;
+        });
+    
+        
+        // map((val)=>{
+        //     if(val.id === name) {
+        //         const newValue = !val.done;
+        //         val.done = newValue;
+        //     }
+        // })
+        localStorage.setItem('item',JSON.stringify(updatedList));
+        props.setTodoItem(updatedList);
+
     }
 
     return(
-        <Wrapper>
+        <ItemContainer>
             <BackGroundPattern></BackGroundPattern>
             {
                 props.todoItem.length===0
                 ? <div></div>
                 : props.todoItem.map((val,idx) => {
+    
                     return(
-                    <div key={idx} style={{display:"flex", paddingBottom:"14.5px"}}>
+                    <div 
+                        key={idx} 
+                        style={{display:"flex", paddingBottom:'14.5px'}}>
                         <CustomCheckboxWrapper>
                             <StyledCheckbox type="checkbox"/>
                             <StyledLabel
-                                data-name={idx+1} 
+                                data-name={val.id} 
                                 onClick={(e)=>onClickCheckbox(e)}
-                                isChecked={isChecked}/>
+                                // isChecked={props.isChecked[idx]}
+                                isChecked={val.done}
+                                />
                         </CustomCheckboxWrapper>
                         {/* <span>{val.id}: </span> */}
-                        <span>{val.text}</span>
-                        <Button
-                            data-name={idx}
+                        <div>{val.text}</div>
+                        <DeleteButton
+                            data-name={val.id}
                             onClick={(e)=>onClickDelete(e)}
-                            >X</Button>
+                            >X</DeleteButton>
                     </div>)
                 })    
             }
-        </Wrapper>
+        </ItemContainer>
     )
 }
 
