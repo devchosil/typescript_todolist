@@ -1,3 +1,4 @@
+
 import React,{ useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { DeleteButton, 
@@ -6,51 +7,29 @@ import { DeleteButton,
     CustomCheckboxWrapper, 
     StyledCheckbox,
     StyledLabel } from '../styles/todolist.styled';
-    interface Item { 
-        id: number,
-        text: string,
-        done: boolean
-    } 
-    interface Props {
-        todoItem: {id: number, text: string, done:boolean}[],
-        setTodoItem: React.Dispatch<React.SetStateAction<Item[]>>;
-        // isChecked: boolean[],
-        // setIsChecked: React.Dispatch<React.SetStateAction<boolean[]>>;
+import { SetterOrUpdater } from 'recoil';
+import { todoState, TodoTypes } from '../recoil/atoms';
+
+    interface PropTypes {
+        todos: TodoTypes[];
+        setTodos: SetterOrUpdater<TodoTypes[]>;
     }
 
-const TodoItem = (props:Props) => {
+const TodoItem = ({todos, setTodos}:PropTypes) => {
 
     const onClickDelete = (e:React.MouseEvent<HTMLButtonElement, MouseEvent>) =>  {
         const name = +e.currentTarget.dataset.name;
-        const list:Item[] = JSON.parse(localStorage.getItem('item'));
-        const updatedList = list.filter((val)=>val.id !== name);
-        localStorage.setItem('item',JSON.stringify(updatedList));
-        props.setTodoItem([...updatedList]);
+        const updatedList = todos.filter(val => val.id !== name);
+        setTodos([...updatedList]);
     }
 
-    // const [isChecked,setIsChecked] = useState<boolean>(false);
     const onClickCheckbox = (e:React.MouseEvent<HTMLElement,MouseEvent>) => {
         const name = +e.currentTarget.dataset.name;
-        const list:Item[] = JSON.parse(localStorage.getItem('item'));
-        
-        const updatedList = list.map(item => {
-            if (item.id === name) {
-                const newValue = !item.done;
-                // Create a new object with the updated 'done' property
-                return { ...item, done: newValue };
-            }
-            return item;
-        });
-    
-        
-        // map((val)=>{
-        //     if(val.id === name) {
-        //         const newValue = !val.done;
-        //         val.done = newValue;
-        //     }
-        // })
-        localStorage.setItem('item',JSON.stringify(updatedList));
-        props.setTodoItem(updatedList);
+
+        const updatedList = todos.map((val)=>{
+            return val.id === name ? { ...val, done: !val.done} : val;
+        })
+        setTodos([...updatedList]);
 
     }
 
@@ -58,9 +37,9 @@ const TodoItem = (props:Props) => {
         <ItemContainer>
             <BackGroundPattern></BackGroundPattern>
             {
-                props.todoItem.length===0
+                todos.length===0
                 ? <div></div>
-                : props.todoItem.map((val,idx) => {
+                : todos.map((val,idx) => {
     
                     return(
                     <div 
