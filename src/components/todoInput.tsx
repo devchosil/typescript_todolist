@@ -1,12 +1,10 @@
 import React,{ useState, useEffect } from "react";
-import styled from 'styled-components';
 import { InputContainer, InputButton } from '../styles/todolist.styled';
 interface Props {
     todoInput: string;
     setTodoInput: React.Dispatch<React.SetStateAction<string>>;
     addItem:()=>void;
 }
-
 
 const TodoInput = (props:Props) => {
 
